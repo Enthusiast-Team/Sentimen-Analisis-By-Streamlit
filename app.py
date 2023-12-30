@@ -136,8 +136,8 @@ if not is_table_empty(table_name):
     reviews = [removeStopWords(line,stopwords) for line in data_formal]
 
     # Specify the file path of the pickle file
-    file_path = 'model/reviews.pkl'
-
+    file_path = 'model_test/reviews.pkl'
+ 
     # Read the pickle file
     with open(file_path, 'rb') as file:
         data_train = pickle.load(file)
@@ -147,13 +147,18 @@ if not is_table_empty(table_name):
     train_vector = vectorizer.fit_transform(data_train)
     reviews2 = [" ".join(r) for r in reviews]
 
-    load_model = pickle.load(open('model_test/revisi_hasil_sentimen.pkl','rb'))
+    # load_model = pickle.load(open('model_test/revisi_hasil_sentimen.pkl','rb'))
+    # with open('model_test/revisi_hasil_sentimen.pkl', 'rb') as file:
+    #     load_model = pickle.load(file)
+    import joblib
+
+    load_model = joblib.load('model_test/revisi_hasil_sentimen.pkl')
 
     result = []
 
     for test in reviews2:
         test_data = [str(test)]
-        test_vector = vectorizer.transform(test_data)
+        test_vector = vectorizer.transform(test_data).toarray()
         pred = load_model.predict(test_vector)
         result.append(pred[0])
         
@@ -223,29 +228,29 @@ else:
 data = data[['review', 'label']]
 
 # Menghitung jumlah data dengan label positif, negatif, dan netral
-jumlah_positif = len(data[data['label'] == 1])
-jumlah_negatif = len(data[data['label'] == 0])
-jumlah_netral = len(data[data['label'] == -1])
+jumlah_positif = len(data[data['label'] == 5])
+jumlah_negatif = len(data[data['label'] == 1])
+jumlah_netral = len(data[data['label'] == 3])
 
 # Membuat dashboard Streamlit
-st.title('Dashboard Analisis Sentimen Aplikasi Game Terkait Artefak')
+st.title('Dashboard Analisis Sentimen')
 
 # Membuat kolom-kolom untuk menyusun metrik
 col1, col2, col3 = st.columns(3)
 
 # Menampilkan metrik untuk jumlah data dengan label positif, negatif, dan netral
 with col1:
-    st.metric(label='Positif (1)', value=jumlah_positif)
+    st.metric(label='Positif (5)', value=jumlah_positif)
 
 with col2:
-    st.metric(label='Negatif (0)', value=jumlah_negatif)
+    st.metric(label='Negatif (1)', value=jumlah_negatif)
 
 with col3:
-    st.metric(label='Netral (-1)', value=jumlah_netral)
+    st.metric(label='Netral (3)', value=jumlah_netral)
 
 # Membuat bar chart dengan warna yang berbeda
 fig, ax = plt.subplots()
-labels = ['Positif (1)', 'Negatif (0)', 'Netral (-1)']
+labels = ['Positif (5)', 'Negatif (1)', 'Netral (3)']
 jumlah_data = [jumlah_positif, jumlah_negatif, jumlah_netral]
 colors = ['green', 'red', 'gray']
 ax.bar(labels, jumlah_data, color=colors)
